@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Alarm</title>
+        <link href="style.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <!-- <link href="node_modules/font-awesome/css/font-awesome.min.css" rel="stylesheet"> -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+        <style>
+            body{
+                background: linear-gradient(to top right,rgba(12, 12, 12, 0.7),rgba(2, 2, 2, 0.8)),  url("img/water-mountain-moon-river-preview.jpg");
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-attachment: fixed;
+            }
+
+            .messages {
+                background-color: white;
+                height: 0px;
+                animation-name: slide;
+                animation-duration: 3s;
+                position: fixed;
+                bottom: 0px;
+                right: 0px;
+                animation-fill-mode: forwards;
+            }
+
+            @keyframes slide {
+                0% {height: 0px; }
+                25% {height: 20px;}
+                50% {height: 40px;}
+                75% {height: 60px;}
+                100% {height: 80px;}
+            }
+
+            .buttons {
+                margin-top: -5px;
+                margin-bottom: 5px;
+            }
+
+        </style>
+
+    </head>
+    <body>
+       <div class="container mt-5">
+
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">SN00ZE</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                            <!-- <p id="write"></p> -->
+                            <input class="form-control" type="text" placeholder="min" id="snooze_time">
+                            <br>
+                            <button onclick="snooze()" class="btn btn-danger buttons float-right" id="snooze_btn">Snooze</button>
+                        <!-- </div> -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <h1 class="text-center text-white">Alarm <i class="fa fa-bell"></i></h1>
+            <div class="card shadow-lg rounded-circle mr-auto ml-auto mt-5" style="width: 200px;height: 200px;">
+                <h2 class="text-danger mt-5 text-center"><span id="hr">0</span> hr <span id="mi">0</span> Min</h2>
+                <h4 class="text-danger mt-1 text-center" id="day">Tuesday</h4>
+                <i class="fa fa-clock text-center mt-2" style="font-size: 30px;"></i>
+            </div>
+
+            <div class="row mt-3 shadow-lg p-5">
+                <div class="col-md-6">
+                    <input type="text" class="form-control shadow-lg" placeholder="Hours" id="hour">
+                </div>
+                    <div class="col-md-6">
+                    <input type="text" class="form-control shadow-lg" placeholder="Minutes" id="min">
+                </div>
+                <div class="col-md-6 mr-auto ml-auto mt-4 ">
+                    <textarea rows="4" class="form-control" cols="60" id="remind"></textarea>
+                </div>
+                <div class="col-md-12 mt-4 mb-2">
+                    <button onclick="check()" class="btn btn-warning btn-danger btn-block">Start</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div  class="col-sm-12 col-md-5">
+                    <div id="error" hidden class="alert alert-danger">
+                        <strong>This is an error with the time input <i style="color: black;" id="change">"try using a 12hr format"</i> </strong>
+                    </div>
+                </div>
+                <div hidden class="messages col-md-4 mr-auto ml-auto form-control"  id="pop">
+                            <p><b id="write"></b></p>
+                     <button type="button" data-toggle="modal" data-target="#exampleModal" class="btn btn-dark buttons" id="snooze_btn1">Snooze</button>
+                     <button onclick="stops()" class="btn btn-danger buttons"> stop</button>
+                </div>
+            </div>
+       </div>
+       <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+       <script>
+
+$(document).ready(function () {
+
+    $('#snooze_btn1').click(function () {
+        $('#exampleModal').modal('show')
+    });
+
+});
+    // var d = new Date()
+
+    // day.innerText =
+
+
+            var rhour;
+            var rmin;
+            var r;
+            function check() {
+                rhour = hour.value
+                rmin = min.value
+                r = remind.value
+                corHaM(rhour, rmin)
+            }
+
+            function corHaM(h, m) {
+                var chour = /^[0-1]?[0-9]{1}$/
+                var cmin = /^[0-5]{1}[0-9]{1}$/
+                if ((parseInt(h) < 13 && chour.test(h)) && cmin.test(m)) {
+                   setAlarm(h, m)
+                   hour.value = ''
+                    min.value = ''
+                    remind.value = ''
+                } else {
+                    change.innerText = "try using a 12hr format"
+                    error.hidden = false
+                    hour.value = ''
+                    min.value = ''
+                    disappear()
+                }
+            }
+
+            function disappear() {
+                setTimeout(function () {
+                error.hidden = true
+                }, 5000)
+            }
+            var t;
+           function setAlarm(h, m) {
+              t = setInterval(function () {
+                var ptime = new Date()
+                x = ptime.getHours()
+                if (parseInt(x) > 12) {
+                    x = parseInt(x) - 12
+                }
+                y = ptime.getMinutes()
+                if (circleDisplay(h, m)) {
+                    if (x == h && y == m) {
+                    sing()
+                    display()
+                    reset()
+                }
+                }
+
+
+               }, 100)
+           }
+
+           var aud = document.createElement('audio');
+           function sing() {
+                aud.src = 'song/song.mp3'
+                aud.play()
+           }
+
+           function display() {
+                pop.hidden = false
+                write.innerText = r
+           }
+
+
+           function circleDisplay(h, m) {
+               var x = new Date()
+               var y = x.getMinutes()
+               var z = x.getHours()
+               if (parseInt(z) > 12) {
+                    z = parseInt(z) - 12
+               }
+               var present_min = parseInt(z * 60) + parseInt(y)
+               target_min = parseInt(h * 60) + parseInt(m)
+
+               var min_left = target_min - present_min
+
+               p = Math.floor(min_left / 60)
+
+               if (p < 0) {
+                change.innerText = "time has passed. put a new time"
+                error.hidden = false
+                disappear()
+                reset()
+                return false
+           } else {
+               hr.innerText = p
+               mi.innerText = min_left - (p * 60)
+               return true
+           }
+
+
+            //    day.innerText = x.getTime()
+           }
+
+
+
+           function reset() {
+             clearTimeout(t)
+           }
+
+           function snooze() {
+            //    snooze_btn.innerText =='Snooze' ? snooze_time.hidden  = false :  chSM();
+                snooze_time.hidden = false;
+                // pop.hidden = true
+                chSM()
+           }
+
+           function chSM() {
+               var snooze_min = /^[0-5]?[0-9]{1}$/
+                if (snooze_min.test(snooze_time.value)) {
+                    var hold = snooze_time.value
+                    var x = new Date()
+                    var y = x.getMinutes()
+                    var z = x.getHours()
+                    if (parseInt(z) > 12) {
+                        z = parseInt(z) - 12
+                    }
+
+                    var add = parseInt(y) + parseInt(hold)
+                    var new_h = Math.floor((add)/60)
+                    new_min = add - (new_h * 60)
+
+                    var send_h = parseInt(z) + new_h
+                    if (send_h > 12) {
+                        send_h -= 12
+                    }
+                    aud.pause()
+                    pop.hidden = true
+                    console.log(send_h)
+                    console.log(new_min)
+                    corHaM(send_h, new_min)
+                } else {
+                    change.innerText = "try using a 12hr format"
+                    error.hidden = false
+                    disappear()
+                }
+           }
+
+           function stops() {
+               aud.pause()
+               pop.hidden = true
+           }
+
+       </script>
+    </body>
+</html>
+
+
+
+    <!-- //  var num=/^[a-zA-Z0-9]{2,50}[@]{1}[a-zA-Z]{2,8}[.]{1}[a-z]{3}$/
+    // function check() {
+    //     var phone = mail.value
+    //     isPhone(phone)
+    // }
+
+    // function isPhone(x) {
+    // var num = /^[+]{1}[0-9]{2,3}[7-9]{1}[0-9]{9}$/
+    // if (!num.test(x)) {
+    //     error.hidden = false
+    //     disappear()
+    // }
+    // }
+    //  -->
