@@ -123,6 +123,11 @@ $(document).ready(function () {
         $('#exampleModal').modal('show')
     });
 
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var present = new Date()
+    var presentDay = days[present.getDay()]
+    $('#day').text(presentDay)
+
 });
     // var d = new Date()
 
