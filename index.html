@@ -2,7 +2,12 @@
 <html>
     <head>
         <title>Alarm</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
         <link href="style.css" rel="stylesheet" type="text/css">
+
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
@@ -78,10 +83,10 @@
             </div>
 
             <div class="row mt-3 shadow-lg p-5">
-                <div class="col-md-6">
+                <div class="col-md-6 mb-2">
                     <input type="text" class="form-control shadow-lg" placeholder="Hours" id="hour">
                 </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 ">
                     <input type="text" class="form-control shadow-lg" placeholder="Minutes" id="min">
                 </div>
                 <div class="col-md-6 mr-auto ml-auto mt-4 ">
@@ -110,15 +115,10 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-
-
-       <!-- <script src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="node_modules/popper.js/dist/umd/popper.min.js"></script>
-    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
        <script>
 
+// match the getday value output and match it to a day in the days array
 $(document).ready(function () {
-
     $('#snooze_btn1').click(function () {
         $('#exampleModal').modal('show')
     });
@@ -127,171 +127,156 @@ $(document).ready(function () {
     var present = new Date()
     var presentDay = days[present.getDay()]
     $('#day').text(presentDay)
-
 });
-    // var d = new Date()
-
-    // day.innerText =
 
 
-            var rhour;
-            var rmin;
-            var r;
-            function check() {
-                rhour = hour.value
-                rmin = min.value
-                r = remind.value
-                corHaM(rhour, rmin)
-            }
+var rhour;
+var rmin;
+var r;
 
-            function corHaM(h, m) {
-                var chour = /^[0-1]?[0-9]{1}$/
-                var cmin = /^[0-5]{1}[0-9]{1}$/
-                if ((parseInt(h) < 13 && chour.test(h)) && cmin.test(m)) {
-                   setAlarm(h, m)
-                   hour.value = ''
-                    min.value = ''
-                    remind.value = ''
-                } else {
-                    change.innerText = "try using a 12hr format"
-                    error.hidden = false
-                    hour.value = ''
-                    min.value = ''
-                    disappear()
-                }
-            }
+// fetch the value of the inputed hour and min and message
+function check() {
+    rhour = hour.value
+    rmin = min.value
+    r = remind.value
+    corHaM(rhour, rmin)
+}
 
-            function disappear() {
-                setTimeout(function () {
-                error.hidden = true
-                }, 5000)
-            }
-            var t;
-           function setAlarm(h, m) {
-              t = setInterval(function () {
-                var ptime = new Date()
-                x = ptime.getHours()
-                if (parseInt(x) > 12) {
-                    x = parseInt(x) - 12
-                }
-                y = ptime.getMinutes()
-                if (circleDisplay(h, m)) {
-                    if (x == h && y == m) {
-                    sing()
-                    display()
-                    reset()
-                }
-                }
+// check the hour and minute value using a 12hr format
+function corHaM(h, m) {
+    var chour = /^[0-1]?[0-9]{1}$/
+    var cmin = /^[0-5]{1}[0-9]{1}$/
+    if ((parseInt(h) < 13 && chour.test(h)) && cmin.test(m)) {
+        setAlarm(h, m)
+        hour.value = ''
+        min.value = ''
+        remind.value = ''
+    } else {
+        change.innerText = "try using a 12hr format"
+        error.hidden = false
+        hour.value = ''
+        min.value = ''
+        disappear()
+    }
+}
+
+// error message disappers after 5 seconds
+function disappear() {
+    setTimeout(function () {
+    error.hidden = true
+    }, 5000)
+}
+
+var t;
+// every 0.1seond to see if the time is ready
+function setAlarm(h, m) {
+    t = setInterval(function () {
+    var ptime = new Date()
+    x = ptime.getHours()
+    if (parseInt(x) > 12) {
+        x = parseInt(x) - 12
+    }
+    y = ptime.getMinutes()
+    if (circleDisplay(h, m)) {
+        if (x == h && y == m) {
+        sing()
+        display()
+        reset()
+    }
+    }
+    }, 100)
+}
+
+//set the song in play
+var aud = document.createElement('audio');
+function sing() {
+    aud.src = 'song/song.mp3'
+    aud.play()
+}
+
+// the display function is set active and a pop up is displayed wit whe input message
+function display() {
+    pop.hidden = false
+    write.innerText = r
+}
+
+// using minute conversion, compare the present time with the time set
+// set the values in the circle to the current time left
+function circleDisplay(h, m) {
+    var x = new Date()
+    var y = x.getMinutes()
+    var z = x.getHours()
+    if (parseInt(z) > 12) {
+        z = parseInt(z) - 12
+    }
+    var present_min = parseInt(z * 60) + parseInt(y)
+    target_min = parseInt(h * 60) + parseInt(m)
+
+    var min_left = target_min - present_min
+
+    p = Math.floor(min_left / 60)
+
+    if (p < 0) {
+    change.innerText = "time has passed. put a new time"
+    error.hidden = false
+    disappear()
+    reset()
+    return false
+} else {
+    hr.innerText = p
+    mi.innerText = min_left - (p * 60)
+    return true
+}
+}
 
 
-               }, 100)
-           }
+//  this clears the setInterval when the alarm sounds
+function reset() {
+    clearTimeout(t)
+}
 
-           var aud = document.createElement('audio');
-           function sing() {
-                aud.src = 'song/song.mp3'
-                aud.play()
-           }
+// on click of the snooze button, the modal to input minute is displayed
+function snooze() {
+    snooze_time.hidden = false;
+    chSM()
+}
 
-           function display() {
-                pop.hidden = false
-                write.innerText = r
-           }
+// ONLY a maximun of 59sec is allowed
+// the new date for the alarm is calculated and the corHAM() is called again
+function chSM() {
+    var snooze_min = /^[0-5]?[0-9]{1}$/
+    if (snooze_min.test(snooze_time.value)) {
+        var hold = snooze_time.value
+        var x = new Date()
+        var y = x.getMinutes()
+        var z = x.getHours()
+        if (parseInt(z) > 12) {
+            z = parseInt(z) - 12
+        }
 
+        var add = parseInt(y) + parseInt(hold)
+        var new_h = Math.floor((add)/60)
+        new_min = add - (new_h * 60)
 
-           function circleDisplay(h, m) {
-               var x = new Date()
-               var y = x.getMinutes()
-               var z = x.getHours()
-               if (parseInt(z) > 12) {
-                    z = parseInt(z) - 12
-               }
-               var present_min = parseInt(z * 60) + parseInt(y)
-               target_min = parseInt(h * 60) + parseInt(m)
+        var send_h = parseInt(z) + new_h
+        if (send_h > 12) {
+            send_h -= 12
+        }
+        aud.pause()
+        pop.hidden = true
+        corHaM(send_h, new_min)
+    } else {
+        change.innerText = "try using a 12hr format"
+        error.hidden = false
+        disappear()
+    }
+}
 
-               var min_left = target_min - present_min
-
-               p = Math.floor(min_left / 60)
-
-               if (p < 0) {
-                change.innerText = "time has passed. put a new time"
-                error.hidden = false
-                disappear()
-                reset()
-                return false
-           } else {
-               hr.innerText = p
-               mi.innerText = min_left - (p * 60)
-               return true
-           }
-           }
-
-
-
-           function reset() {
-             clearTimeout(t)
-           }
-
-           function snooze() {
-            //    snooze_btn.innerText =='Snooze' ? snooze_time.hidden  = false :  chSM();
-                snooze_time.hidden = false;
-                // pop.hidden = true
-                chSM()
-           }
-
-           function chSM() {
-               var snooze_min = /^[0-5]?[0-9]{1}$/
-                if (snooze_min.test(snooze_time.value)) {
-                    var hold = snooze_time.value
-                    var x = new Date()
-                    var y = x.getMinutes()
-                    var z = x.getHours()
-                    if (parseInt(z) > 12) {
-                        z = parseInt(z) - 12
-                    }
-
-                    var add = parseInt(y) + parseInt(hold)
-                    var new_h = Math.floor((add)/60)
-                    new_min = add - (new_h * 60)
-
-                    var send_h = parseInt(z) + new_h
-                    if (send_h > 12) {
-                        send_h -= 12
-                    }
-                    aud.pause()
-                    pop.hidden = true
-                    console.log(send_h)
-                    console.log(new_min)
-                    corHaM(send_h, new_min)
-                } else {
-                    change.innerText = "try using a 12hr format"
-                    error.hidden = false
-                    disappear()
-                }
-           }
-
-           function stops() {
-               aud.pause()
-               pop.hidden = true
-           }
-
-       </script>
+// On click of the stop button, the song stop playin and the pop message is hidden
+function stops() {
+    aud.pause()
+    pop.hidden = true
+}
+    </script>
     </body>
 </html>
-
-
-
-    <!-- //  var num=/^[a-zA-Z0-9]{2,50}[@]{1}[a-zA-Z]{2,8}[.]{1}[a-z]{3}$/
-    // function check() {
-    //     var phone = mail.value
-    //     isPhone(phone)
-    // }
-
-    // function isPhone(x) {
-    // var num = /^[+]{1}[0-9]{2,3}[7-9]{1}[0-9]{9}$/
-    // if (!num.test(x)) {
-    //     error.hidden = false
-    //     disappear()
-    // }
-    // }
-    //  -->
